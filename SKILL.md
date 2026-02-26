@@ -252,6 +252,8 @@ Read docs/AGENT-GUIDE.md — this is the dispatch table that drives everything.
 Run the Session Bootstrap to load project state, then begin executing at R-011
 (Approve Project Foundation).
 
+**CRITICAL RULE:** Never manually edit the YAML frontmatter in `INDEX.md`. You MUST use the Python actuator scripts in `.trinity/bin/` for all state changes and logging. Failure to do so will corrupt the protocol state.
+
 You read state → match rules → dispatch sub-agents. Follow the framework.
 ---
 

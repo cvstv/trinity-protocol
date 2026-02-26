@@ -11,8 +11,8 @@ tests_passing: false
 **Read this before creating, modifying, or dispatching any sprint.**
 The state of the protocol is driven entirely by the YAML variables above. 
 
-> Do not edit the YAML block manually unless you are an agent bypassing the CLI tools. 
-> Use `./.trinity/bin/trinity-transition`, `./.trinity/bin/trinity-block`, and `./.trinity/bin/trinity-test.py`.
+> **CRITICAL INVARIANT:** Do NOT edit the YAML block manually under ANY circumstances. 
+> You MUST use `./.trinity/bin/trinity-transition.py`, `./.trinity/bin/trinity-block.py`, and `./.trinity/bin/trinity-test.py` to change state. Manual edits will corrupt the state machine.
 
 ## Status Values
 

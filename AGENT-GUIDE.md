@@ -526,8 +526,7 @@ These rules are not triggered by state — they are constraints that apply to ev
 </invariant>
 
 <invariant id="I-003">
-  The YAML frontmatter in INDEX.md (`sprint_status`, `blocks`, `active_role`, `tests_passing`) must be updated after every state change using the `trinity-block.py`, `trinity-transition.py`, and `trinity-test.py` scripts.
-  INDEX.md YAML frontmatter is the system heartbeat.
+  The YAML frontmatter in INDEX.md (`sprint_status`, `blocks`, `active_role`, `tests_passing`) must NEVER be edited manually. You MUST use the `.trinity/bin/trinity-block.py`, `.trinity/bin/trinity-transition.py`, and `.trinity/bin/trinity-test.py` scripts to update state. Manual edits will corrupt the system heartbeat and are a critical invariant violation.
 </invariant>
 
 <invariant id="I-004">
