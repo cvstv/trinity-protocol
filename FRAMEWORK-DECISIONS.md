@@ -4,7 +4,7 @@
 
 ---
 
-## ⯂ What This Framework Is (and Is Not)
+## ⬢ What This Framework Is (and Is Not)
 
 **It is:** A filesystem-based coordination protocol that explicitly *structures* how autonomous AI agents communicate and assign work. While modern agents *can* invoke each other natively, this framework replaces informal sub-agent prompting with rigid file-system state transitions. It functions as a state machine implemented in markdown, providing a dispatch table that turns repo state into deliberate agent actions.
 
@@ -17,7 +17,7 @@
 
 ---
 
-## ⯃ Design Decisions
+## ◩ Design Decisions
 
 ### Markdown as the sole medium
 
@@ -159,7 +159,7 @@ blockers during Deep Analysis. The pattern requires the full picture.
 
 ---
 
-## ⯄ Rejected Approaches
+## ⟡ Rejected Approaches
 
 ### Real-time agent communication
 
@@ -202,7 +202,7 @@ bootstrap). Combining them would force agents to parse irrelevant content on eve
 
 ---
 
-## ⯅ Accepted Trade-offs
+## ⬡ Accepted Trade-offs
 
 | Trade-off | Accepted because |
 |-----------|-----------------|
