@@ -9,7 +9,7 @@ An **autonomous multi-agent coordination framework** where the repository is the
 > You install one file (`SKILL.md`) into Claude Code, then it uses everything here to set up
 > YOUR project with fully populated coordination files. The README below explains how it all works.
 
-## 🚀 What This Is
+## ⯁ What This Is
 
 Three AI agent roles build a project together, coordinating through markdown files
 in a git repo. The files aren't a workaround. **They ARE the protocol.** Every decision,
@@ -26,7 +26,7 @@ full project state: what was decided, what happened, what's blocked, what's next
 🔨 BUILDER        sub-agent. Writes code via TDD, commits per task, stops when blocked.
 ```
 
-## 🧠 V2 Architecture: The "Cortex" and "Actuator" Split
+## ⯂ V2 Architecture: The "Cortex" and "Actuator" Split
 
 Trinity Protocol V2 operates on a strict split between machine-state and human-nuance:
 
@@ -47,9 +47,9 @@ The head agent (Orchestrator) reads a **dispatch table**, which is a set of numb
 rules that map repo state to actions. It evaluates rules top-to-bottom, first match
 fires, and it dispatches the appropriate sub-agent to execute. The project builds itself.
 
-## 🔄 Two-Phase Model
+## ⯃ Two-Phase Model
 
-### 🛠️ Phase 1: Setup (Human + Skill)
+### Phase 1: Setup (Human + Skill)
 
 You run `/trinity-protocol` in Claude Code. It's a conversational session that:
 
@@ -61,7 +61,7 @@ You run `/trinity-protocol` in Claude Code. It's a conversational session that:
 
 By the end, the repo is ready for the autonomous loop.
 
-### 🤖 Phase 2: Execution (Fully Autonomous)
+### Phase 2: Execution (Fully Autonomous)
 
 You give the head agent an initial prompt. It assumes the Orchestrator role, spawns
 two sub-agents (Architect and Builder), and runs the dispatch loop:
@@ -76,7 +76,7 @@ Head agent reads INDEX.md and ESCALATIONS.md
 
 The human only comes back when the system writes to `ESCALATIONS.md`.
 
-## 🗺️ How the Dispatch Table Works
+## ⯄ How the Dispatch Table Works
 
 `AGENT-GUIDE.md` contains numbered rules. Each rule has a trigger (repo state),
 a dispatch target (which role), and an action. The head agent evaluates top-to-bottom:
@@ -92,7 +92,7 @@ INDEX.md shows sprint merged       >  ORCHESTRATOR         >  retrospective, nex
 
 First match wins. Priority rules (escalations, block thresholds) always check first.
 
-## 💾 All State Lives in Markdown
+## ⯆ All State Lives in Markdown
 
 | File | Purpose |
 |------|---------|
@@ -107,9 +107,9 @@ First match wins. Priority rules (escalations, block thresholds) always check fi
 Every file serves double duty: it's project documentation AND runtime state for
 the agents. There's no separate coordination system. The repo IS the protocol.
 
-## 🚀 Setup
+## ⯇ Setup
 
-### 1️⃣ Step 1: Install the initialization skill
+### Step 1: Install the initialization skill
 
 ```bash
 git clone https://github.com/cvstv/trinity-protocol.git
@@ -122,7 +122,7 @@ Restart Claude Code. `/trinity-protocol` will appear as a slash command.
 Or tell Claude directly:
 > "Read SKILL.md from [path] and copy it to ~/.claude/skills/trinity-protocol/SKILL.md"
 
-### 2️⃣ Step 2: Initialize your project
+### Step 2: Initialize your project
 
 ```bash
 mkdir my-project && cd my-project && git init
@@ -132,7 +132,7 @@ Run `/trinity-protocol` in Claude Code. It asks about your project (what it is,
 tech stack, security constraints, milestones) then produces fully populated
 coordination files and scaffolds the project. No templates. No placeholders.
 
-### 3️⃣ Step 3: Hand to the head agent
+### Step 3: Hand to the head agent
 
 Open your head agent (any agent with sub-agent capability) and give it:
 
@@ -153,7 +153,7 @@ You read state, match rules, dispatch sub-agents. Follow the framework.
 The head agent takes over. It creates sprints, dispatches sub-agents, reviews
 code, and resolves blockers, all autonomously.
 
-## 🚨 When You Get Pulled Back In
+## ⯈ When You Get Pulled Back In
 
 The system writes to `ESCALATIONS.md` and pauses when it needs you:
 
@@ -164,7 +164,7 @@ The system writes to `ESCALATIONS.md` and pauses when it needs you:
 
 Read the escalation, write your decision inline, and the loop resumes.
 
-## 🏃‍♂️ The Sprint Lifecycle
+## ⯊ The Sprint Lifecycle
 
 ```text
 Orchestrator creates SPRINT-N.md        >  tasks, acceptance checks, stop conditions
@@ -184,7 +184,7 @@ Failure paths:
                                                     Architect reviews
 ```
 
-## 🔑 Key Concepts
+## ⯋ Key Concepts
 
 **Autonomous dispatch.** The head agent reads file state and matches rules.
 No human routing between agents.
@@ -212,7 +212,7 @@ a concrete target instead of inventing UI design from scratch.
 
 **Model-agnostic.** Roles aren't tied to specific AI models. Use whatever you have.
 
-## 📁 What's in This Repo
+## ⯌ What's in This Repo
 
 ```text
 trinity-protocol/
@@ -234,7 +234,7 @@ trinity-protocol/
 The `templates/` directory contains file formats that the SKILL uses when setting
 up your project. You don't need to touch them directly.
 
-## 🌱 Origin
+## ⯍ Origin
 
 Built during a real project: a threat intelligence terminal UI coordinated
 across three AI agents. The framework started as manual routing (human
