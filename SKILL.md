@@ -10,9 +10,10 @@ description: Use when starting a new project with 2+ AI agents coordinating via 
 You are setting up an **autonomous agent coordination system** — a filesystem-based
 state machine where the repo is the only shared brain.
 
-This exists because the agents working on this project **cannot talk to each other.**
-They run in separate sessions with no shared context window, no shared memory, and
-no API to call each other. The ONLY channel they share is the filesystem.
+The agents coordinate through the filesystem **by design** — not as a workaround,
+but because files create the accountability trail. Every action is logged, every
+decision is documented, every review is tracked. The repo is the single source of
+truth that makes the system auditable, recoverable, and transparent.
 
 Every file you create is a node in a distributed coordination protocol:
 

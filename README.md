@@ -4,8 +4,10 @@ An autonomous multi-agent coordination framework where the repository is the onl
 
 ## What This Is
 
-Three AI agent roles build a project together through markdown files in a git repo.
-They can't talk to each other — the filesystem IS the communication channel.
+Three AI agent roles build a project together, coordinating through markdown files
+in a git repo. The files aren't a workaround — they ARE the protocol. Every decision,
+every action, every review is tracked in the repo, creating an accountability trail
+that makes the whole system auditable and recoverable.
 
 ```
 ORCHESTRATOR  — the head agent. Plans sprints, resolves blockers, runs the dispatch loop.

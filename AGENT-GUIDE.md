@@ -1,7 +1,8 @@
 # Trinity Protocol — Agent Guide
 
 This is the runtime protocol for an autonomous multi-agent development system.
-The repository is the only shared state. Agents coordinate through files, not conversation.
+The repository is the only shared state. Agents coordinate through files by design —
+every action logged, every decision tracked, every review documented.
 
 This document is a **decision table** — the head agent reads project state from the
 files, pattern-matches against rules, and dispatches the correct role to its sub-agents.
