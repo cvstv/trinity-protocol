@@ -98,7 +98,7 @@ First match wins. Priority rules (escalations, block thresholds) always check fi
 | `BLOCKERS.md` | Dead letter queue. Work that hit a stop condition. |
 | `ESCALATIONS.md` | Human valve. Pauses the loop for human decisions. |
 | `AGENT-GUIDE.md` | The dispatch table. The core of everything. |
-| `.trinity/bin/*.py`| Deterministic execution scripts. The actuator tools. |
+| `.trinity/bin/*.py`| Deterministic execution scripts. The actuator tools (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`, `trinity-test.py`). |
 
 Every file serves double duty: it's project documentation AND runtime state for
 the agents. There's no separate coordination system. The repo IS the protocol.
@@ -166,12 +166,13 @@ Read the escalation, write your decision inline, and the loop resumes.
 Orchestrator creates SPRINT-N.md        >  tasks, acceptance checks, stop conditions
 Architect reviews against DECISIONS.md   >  approves or blocks
 Builder branches sprint-N from main      >  executes tasks via TDD, commits per task
-Architect reviews the diff               >  approves merge to main, or blocks
+Builder executes Automated Gates         >  runs trinity-test.py to verify passing tests
+Architect reviews test gates and diff    >  approves merge to main, or blocks
 Orchestrator writes retrospective        >  flags deferred items and new constraints
 > repeat
 
 Failure paths:
-  Builder blocked            >  BLOCKERS.md      >  Orchestrator resolves
+  Builder code/tests blocked >  BLOCKERS.md      >  Orchestrator resolves
   Sprint blocked 3+ times    >  Deep Analysis    >  Orchestrator analyzes root cause,
                                                     makes tactical decision
   Sprint blocked 5+ times    >  ESCALATIONS.md   >  Human decides
