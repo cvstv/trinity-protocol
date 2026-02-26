@@ -1,6 +1,6 @@
 ---
 name: trinity-protocol
-description: Use when starting a new project with 2+ AI agents coordinating via repo files. Runs a conversational architecture session to produce a fully populated autonomous agent coordination system
+description: Use when starting a new project requiring autonomous AI coordination. Runs a conversational architecture session to produce a fully populated V2 autonomous agent coordination system where a head agent orchestrates sub-agents via repo files.
 ---
 
 # Trinity Protocol: Project Initialization
@@ -22,11 +22,11 @@ Every file you create is a node in a distributed coordination protocol:
 | `ACTIVITY.md` | Event log — append-only, any agent reconstructs project history from this |
 | `DECISIONS.md` | Policy store — architectural law that constrains all future agent actions |
 | `docs/plans/*.md` | Roadmap — the complete task breakdown agents will execute against |
-| `docs/sprints/INDEX.md` | Coordination table — status, role, date, block count per sprint |
+| `docs/sprints/INDEX.md` | Coordination table — contains the YAML state machine (status, blocks, role) |
 | `BLOCKERS.md` | Dead letter queue — unprocessable work routed here for resolution |
 | `ESCALATIONS.md` | Human valve — pauses the autonomous loop for human decisions |
 | `docs/AGENT-GUIDE.md` | Runtime protocol — the full rule engine that drives the system |
-| `.trinity/bin/*` | Tooling directory containing the deterministic shell scripts |
+| `.trinity/bin/*` | Actuators — Python scripts that safely parse and update the YAML state |
 
 This is Infrastructure as Code for AI orchestration. Markdown is the medium.
 Git is the transport. The repo is the nervous system. The shell is the actuator.
@@ -35,15 +35,15 @@ Git is the transport. The repo is the nervous system. The shell is the actuator.
 
 - You are in a git-initialized directory (or will run `git init`)
 - The human has a project idea (rough or detailed, either works)
-- 2+ AI agents with repo access will coordinate work
-- The system will run autonomously with a head agent dispatching sub-agents
+- The user has a head agent capable of spawning and orchestrating sub-agents (e.g., Claude Code, advanced IDE agents).
+- The system will run fully autonomously with the head agent dispatching sub-agents.
 
-**NOT for:** single-agent projects, or agents sharing one conversation window.
+**NOT for:** single-agent projects, or manual copy-pasting between chat windows. This is a V2 Autonomous-only framework.
 
 ## The Three Roles
 
 The Trinity Protocol defines three roles. Roles are **not tied to any specific
-model or platform.** The user assigns roles based on their available tools.
+model or platform.** In this framework, the head agent assumes Orchestrator, and spawns the sub-agents.
 
 <roles>
   <role id="ORCHESTRATOR" level="L3">
@@ -105,12 +105,12 @@ Based on everything above, propose:
 ### Phase 5: Agent setup
 
 Explain the autonomous model:
-- **"This framework runs fully autonomous. Your head agent becomes the Orchestrator
+- **"This framework runs fully autonomously. Your head agent becomes the Orchestrator
   and spawns two sub-agents: one Architect, one Builder."**
 - **"Which AI platform and model will run the head agent?"** — document in DECISIONS.md.
 - **"Does your platform support sub-agents / tool use?"** — if not, explain that
-  sub-agent capability is required for autonomous mode.
-- Document the role-to-agent mapping in DECISIONS.md under Multi-Agent Workflow.
+  sub-agent capability is a hard requirement. The framework cannot be used manually.
+- Document the Orchestrator/Architect/Builder agent models in DECISIONS.md under Multi-Agent Workflow.
 
 ### Phase 6: UI design research (if applicable)
 
@@ -138,12 +138,13 @@ Based on the technology decisions from Phase 2:
 - Set up any config files, CI skeleton, or tooling the project needs
 - Verify all tools and dependencies are available and working
 
-### Phase 8: Scaffold internal shell scripts
+### Phase 8: Scaffold internal python actuators
 
-Create the `.trinity/bin/` directory to house tool-scripts:
+Create the `.trinity/bin/` directory to house the V2 actuator scripts:
 - `mkdir -p .trinity/bin`
-- Write out the 4 python scripts from the Trinity templates (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`, `trinity-test.py`) into `.trinity/bin/`.
+- Copy the 4 python scripts from the Trinity framework repo (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`, `trinity-test.py`) into `.trinity/bin/`. (e.g., fetching from GitHub raw URLs or copying from the cloned repo).
 - Ensure they have execution permissions: `chmod +x .trinity/bin/*.py`. 
+- **Explain to the user:** "These scripts handle all YAML frontmatter state changes. Agents are forbidden from manually editing the YAML blocks to prevent corruption."
 
 Commit the scaffold to `main` before creating the coordination files.
 This handles R-012/R-013 during setup so the autonomous loop can begin
@@ -200,8 +201,16 @@ paths, test commands, acceptance criteria. TDD-shaped: write test, implement, ve
 
 ### 4. `docs/sprints/INDEX.md`
 
-Copy from template. Empty table — the Orchestrator adds the first row when it
-creates Sprint 1.
+Copy from template. Ensure it contains the strict YAML frontmatter block for the state machine:
+```yaml
+---
+sprint_status: none
+blocks: 0
+active_role: ORCHESTRATOR
+tests_passing: true
+---
+```
+Empty table body — the Orchestrator adds the first row when it creates Sprint 1.
 
 ### 5. `BLOCKERS.md`
 
@@ -213,8 +222,7 @@ Copy from template. Empty — the Orchestrator writes the first entry when it ne
 human input.
 
 ### 7. `.trinity/bin/` — Execution Handlers
-Copy the template implementation for the `trinity-log.py`, `trinity-transition.py`, `trinity-block.py`, and `trinity-test.py` scripts.
-These will serve as the system actuators.
+Ensure the 4 `.py` actuator scripts are present in this directory and executable. These scripts must be used by the protocol agents to manipulate the YAML state.
 
 ### 8. `docs/AGENT-GUIDE.md`
 
