@@ -316,7 +316,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     stop conditions. Do not reference modules that don't exist yet.
   </action>
   <completion>
-    RUN: python ./.trinity/bin/trinity-transition.py "in-review"
+    RUN: python ./.trinity/bin/trinity-transition.py "in-review" --sprint N
     RUN: python ./.trinity/bin/trinity-block.py reset
     RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Create Sprint N</action> — created SPRINT-N.md"
   </completion>

@@ -18,12 +18,15 @@ def main():
         print(f"Error: {INDEX_FILE} not found. Ensure you are in the project root.", file=sys.stderr)
         sys.exit(1)
         
-    if len(sys.argv) < 2:
-        print("Usage: python trinity-transition.py <new-status>", file=sys.stderr)
-        print(f"Valid statuses: {', '.join(VALID_STATUSES)}", file=sys.stderr)
-        sys.exit(1)
-        
-    new_status = sys.argv[1]
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Trinity Protocol State Transition Manager")
+    parser.add_argument("status", choices=VALID_STATUSES, help="The new sprint status")
+    parser.add_argument("--sprint", type=int, help="Optional: Update the active_sprint number")
+    
+    args = parser.parse_args()
+    new_status = args.status
+
     
     if new_status not in VALID_STATUSES:
         print(f"Error: '{new_status}' is not a valid sprint status.", file=sys.stderr)
@@ -49,6 +52,10 @@ def main():
     
     # Update the active_role in the YAML frontmatter
     content = re.sub(r'^active_role:\s*.*$', f"active_role: {next_role}", content, count=1, flags=re.MULTILINE)
+    
+    # Update active_sprint if provided
+    if args.sprint is not None:
+        content = re.sub(r'^active_sprint:\s*.*$', f"active_sprint: {args.sprint}", content, count=1, flags=re.MULTILINE)
     
     with open(INDEX_FILE, "w") as f:
         f.write(content)
