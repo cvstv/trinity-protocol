@@ -1,16 +1,16 @@
 ---
 name: trinity-protocol
-description: Use when starting a new project with 2+ AI agents coordinating via repo files — runs a conversational architecture session to produce a fully populated autonomous agent coordination system
+description: Use when starting a new project with 2+ AI agents coordinating via repo files. Runs a conversational architecture session to produce a fully populated autonomous agent coordination system
 ---
 
-# Trinity Protocol — Project Initialization
+# Trinity Protocol: Project Initialization
 
 ## What You Are Building
 
-You are setting up an **autonomous agent coordination system** — a filesystem-based
+You are setting up an **autonomous agent coordination system**, a filesystem-based
 state machine where the repo is the only shared brain.
 
-The agents coordinate through the filesystem **by design** — not as a workaround,
+The agents coordinate through the filesystem **by design**, not as a workaround,
 but because files create the accountability trail. Every action is logged, every
 decision is documented, every review is tracked. The repo is the single source of
 truth that makes the system auditable, recoverable, and transparent.
@@ -33,7 +33,7 @@ Git is the transport. The repo is the nervous system.
 ## When to Use
 
 - You are in a git-initialized directory (or will run `git init`)
-- The human has a project idea (rough or detailed — either works)
+- The human has a project idea (rough or detailed, either works)
 - 2+ AI agents with repo access will coordinate work
 - The system will run autonomously with a head agent dispatching sub-agents
 
@@ -67,7 +67,7 @@ model or platform.** The user assigns roles based on their available tools.
 This is NOT a template scaffolder. This is a **conversational project foundation session.**
 
 You will have a real conversation with the human to understand their project, then
-produce fully populated coordination files — not placeholders. By the end, the repo
+produce fully populated coordination files, not placeholders. By the end, the repo
 is ready for the autonomous loop to begin.
 
 ### Phase 1: What is this?
