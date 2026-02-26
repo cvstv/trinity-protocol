@@ -1,1 +1,4 @@
-{"python.defaultInterpreterPath": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"}
+{
+    "python.defaultInterpreterPath": "/usr/local/bin/python3",
+    "python.analysis.extraPaths": ["./.trinity/bin"]
+}
