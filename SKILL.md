@@ -142,7 +142,7 @@ Based on the technology decisions from Phase 2:
 
 Create the `.trinity/bin/` directory to house tool-scripts:
 - `mkdir -p .trinity/bin`
-- Write out the 3 python scripts from the Trinity templates (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`) into `.trinity/bin/`.
+- Write out the 4 python scripts from the Trinity templates (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`, `trinity-test.py`) into `.trinity/bin/`.
 - Ensure they have execution permissions: `chmod +x .trinity/bin/*.py`. 
 
 Commit the scaffold to `main` before creating the coordination files.
@@ -213,7 +213,7 @@ Copy from template. Empty — the Orchestrator writes the first entry when it ne
 human input.
 
 ### 7. `.trinity/bin/` — Execution Handlers
-Copy the template implementation for the `trinity-log.py`, `trinity-transition.py`, and `trinity-block.py` scripts.
+Copy the template implementation for the `trinity-log.py`, `trinity-transition.py`, `trinity-block.py`, and `trinity-test.py` scripts.
 These will serve as the system actuators.
 
 ### 8. `docs/AGENT-GUIDE.md`

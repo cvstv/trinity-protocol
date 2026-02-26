@@ -344,10 +344,11 @@ next. Rules are evaluated top-to-bottom. First match wins.
   <action>
     RUN: python ./.trinity/bin/trinity-transition.py "in-progress" immediately.
     Execute each task in order using TDD. Commit per task with convention.
-    Stop conditions: if tests fail after 2 attempts, STOP. Write BLOCKERS.md entry.
+    When all tasks are complete, RUN: python ./.trinity/bin/trinity-test.py "<your-test-command>".
+    Stop conditions: if code tests fail after 2 attempts, STOP. Write BLOCKERS.md entry.
   </action>
   <completion>
-    If blocked: RUN: python ./.trinity/bin/trinity-block.py increment
+    If blocked (including test failures you cannot fix): RUN: python ./.trinity/bin/trinity-block.py increment
     RUN: python ./.trinity/bin/trinity-transition.py "[complete or builder-blocked]"
     SPRINT-N.md: append Execution Summary (task, commit hash, deviations)
     RUN: python ./.trinity/bin/trinity-log.py "<role>BUILDER</role> — <action>Execute Sprint N</action> — [completion or blocked entry]"
@@ -359,6 +360,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
   <trigger>INDEX.md shows sprint_status: complete</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
+    Verify INDEX.md shows `tests_passing: true`. If false, block immediately.
     Review full diff. Check security invariants, architecture compliance,
     implementation matches sprint intent. No out-of-scope changes.
   </action>
@@ -524,7 +526,7 @@ These rules are not triggered by state — they are constraints that apply to ev
 </invariant>
 
 <invariant id="I-003">
-  The YAML frontmatter in INDEX.md (`sprint_status`, `blocks`, `active_role`) must be updated after every state change using the `trinity-block.py` and `trinity-transition.py` scripts.
+  The YAML frontmatter in INDEX.md (`sprint_status`, `blocks`, `active_role`, `tests_passing`) must be updated after every state change using the `trinity-block.py`, `trinity-transition.py`, and `trinity-test.py` scripts.
   INDEX.md YAML frontmatter is the system heartbeat.
 </invariant>
 

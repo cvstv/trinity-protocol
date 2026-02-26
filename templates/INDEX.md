@@ -3,6 +3,7 @@ sprint_status: none
 active_sprint: 0
 blocks: 0
 active_role: ORCHESTRATOR
+tests_passing: false
 ---
 
 # Sprint Index
@@ -11,7 +12,7 @@ active_role: ORCHESTRATOR
 The state of the protocol is driven entirely by the YAML variables above. 
 
 > Do not edit the YAML block manually unless you are an agent bypassing the CLI tools. 
-> Use `./.trinity/bin/trinity-transition` and `./.trinity/bin/trinity-block`.
+> Use `./.trinity/bin/trinity-transition`, `./.trinity/bin/trinity-block`, and `./.trinity/bin/trinity-test.py`.
 
 ## Status Values
 
