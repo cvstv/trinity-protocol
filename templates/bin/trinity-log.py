@@ -38,9 +38,17 @@ def main():
         archive_file = os.path.join(archive_dir, f"ACTIVITY_{archive_timestamp}.md")
         
         # Keep header (top 25) and last 50 lines, move the rest
-        header_lines = list(lines[:25])
-        archive_lines = list(lines[25:-50])
-        tail_lines = list(lines[-50:])
+        header_lines = []
+        for i in range(min(25, len(lines))):
+            header_lines.append(lines[i])
+            
+        archive_lines = []
+        for i in range(25, max(25, len(lines) - 50)):
+            archive_lines.append(lines[i])
+            
+        tail_lines = []
+        for i in range(max(0, len(lines) - 50), len(lines)):
+            tail_lines.append(lines[i])
         
         # Write to archive file
         with open(archive_file, "w") as f:

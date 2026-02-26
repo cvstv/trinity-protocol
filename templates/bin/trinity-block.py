@@ -24,11 +24,11 @@ def main():
         
     # Find active blocks count using regex
     match = re.search(r'^blocks:\s*(\d+)$', content, re.MULTILINE)
-    if match is None:
+    if match:
+        current_blocks = int(match.group(1))
+    else:
         print(f"Error: Could not find 'blocks: N' in {INDEX_FILE} YAML frontmatter.", file=sys.stderr)
         sys.exit(1)
-        
-    current_blocks = int(match.group(1))
     
     def update_blocks(new_count):
         new_content = re.sub(r'^blocks:\s*\d+$', f"blocks: {new_count}", content, count=1, flags=re.MULTILINE)
