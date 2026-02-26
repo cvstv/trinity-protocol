@@ -3,20 +3,20 @@
 This is the runtime protocol for an autonomous multi-agent development system.
 The repository is the only shared state. Agents coordinate through files, not conversation.
 
-This document is a **decision table** — the head agent (or human operator) reads project
-state from the files, pattern-matches against rules, and dispatches the correct role.
+This document is a **decision table** — the head agent reads project state from the
+files, pattern-matches against rules, and dispatches the correct role to its sub-agents.
 
 ---
 
 ## The Trinity
 
-Three roles. All can build. Focused by strength, not hard restriction.
+Three roles. All engineers. Separated by responsibility, not capability.
 
 <roles>
   <role id="ORCHESTRATOR" level="L3">
-    Senior architect, project manager, sprint planner, council chair.
+    Senior architect, sprint planner, decision protocol authority.
     Responsibilities: strategic planning, scope control, sprint creation, blocker resolution,
-    council facilitation, retrospectives. Owns the project schedule.
+    deep analysis, retrospectives. Owns the project schedule. This is the head agent role.
   </role>
   <role id="ARCHITECT" level="L2">
     Principal engineer, logic refiner, security gate, merge gate.
@@ -32,16 +32,16 @@ Three roles. All can build. Focused by strength, not hard restriction.
 
 ### Role Assignment
 
-Roles are **not tied to any specific model, platform, or agent.** The user of this
-framework assigns roles based on their available tools and judgment. Examples:
+The framework operates in **fully autonomous mode**. The head agent assumes the
+Orchestrator role and spawns two sub-agents: one assigned Architect, one assigned
+Builder. The head agent reads state, matches rules, and dispatches the appropriate
+sub-agent. No manual routing. No hybrid mode.
 
-- 3 separate AI agents (e.g., one per IDE/CLI) each taking a role
-- 1 head agent with sub-agents, each sub-agent assigned a role
-- 2 agents splitting roles, with the head agent covering the third
-- A human filling one role while agents fill the others
+The Orchestrator is always the head agent because it reads state and dispatches
+work — that's exactly what a head agent does. Making the head agent the Architect
+or Builder would invert the authority model.
 
-Document the current role-to-agent mapping in DECISIONS.md under "Multi-Agent Workflow."
-If a role is reassigned mid-project, log it in ACTIVITY.md.
+Document the role-to-agent mapping in DECISIONS.md under "Multi-Agent Workflow."
 
 ---
 
@@ -86,9 +86,6 @@ execute this **in full** before any action. Do not skip steps. Do not skim.
       Read the full SPRINT-N.md for that sprint.
     </step>
     <step order="7">
-      If a council is open in MEETING-LOG.md, read the full COUNCIL-N.md.
-    </step>
-    <step order="8">
       If the most recent retro exists (SPRINT-N-retro.md for the last merged sprint),
       read it. It contains deferred items and architectural flags that affect what
       happens next.
@@ -96,7 +93,7 @@ execute this **in full** before any action. Do not skip steps. Do not skim.
   </phase>
 
   <phase name="REPORT" purpose="Prove context is loaded before acting">
-    <step order="9">
+    <step order="8">
       Output a state report before taking any action:
       - Project: [name from DECISIONS.md]
       - Total sprints: [N merged, N active, N blocked]
@@ -104,7 +101,6 @@ execute this **in full** before any action. Do not skip steps. Do not skim.
       - Last 3 ACTIVITY.md entries: [summary]
       - Open blockers: [none | B-N summary]
       - Open escalations: [none | E-N summary]
-      - Open councils: [none | C-N summary]
       - My role: [ORCHESTRATOR | ARCHITECT | BUILDER]
       - Next rule to fire: [rule ID from dispatch table]
     </step>
@@ -153,14 +149,6 @@ you expect it, check the project root and `docs/` subdirectories.
     <writes>Architect (planning phase)</writes>
     <reads>Orchestrator (sprint creation), Builder (context)</reads>
   </file>
-  <file name="docs/council/COUNCIL-N.md" role="Council deliberation record">
-    <writes>All roles (their respective sections per round)</writes>
-    <reads>All roles (during council), Orchestrator (conclusions)</reads>
-  </file>
-  <file name="docs/council/MEETING-LOG.md" role="Council session index">
-    <writes>Orchestrator (open and close meetings)</writes>
-    <reads>All roles (to check for active councils)</reads>
-  </file>
 </files>
 
 ---
@@ -206,15 +194,14 @@ feat(sprint-N): task-X — [subject]
 ```
 
 Hotfix commits: `fix(sprint-N): [description]`
-Council-driven changes: `refactor(council-N): [description]`
 Decision updates: `docs: update DECISIONS.md — [description]`
 
 ---
 
 ## Dispatch Table — The Rule Engine
 
-The head agent reads INDEX.md, ESCALATIONS.md, and MEETING-LOG.md to determine
-which rule fires next. Rules are evaluated top-to-bottom. First match wins.
+The head agent reads INDEX.md and ESCALATIONS.md to determine which rule fires
+next. Rules are evaluated top-to-bottom. First match wins.
 
 ### Priority Rules (always check first)
 
@@ -233,27 +220,41 @@ which rule fires next. Rules are evaluated top-to-bottom. First match wins.
 </rule>
 
 <rule id="R-002">
-  <trigger>INDEX.md shows any sprint with Blocks >= 3 AND no open council for that sprint</trigger>
+  <trigger>INDEX.md shows any sprint with Blocks >= 3 AND Blocks < 5</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
-  <action>Evaluate whether council is warranted. If yes, initiate Council: Initialize.</action>
-  <next>Council sequence OR continue sprint loop (with logged justification)</next>
-</rule>
+  <action>
+    Deep Analysis. Pause the sprint loop. Read all open BLOCKERS.md entries, the full
+    sprint file, the last retro, and DECISIONS.md. Analyze the root cause pattern across
+    all blocks — are they related? Is the sprint plan flawed? Is a dependency missing?
+    Is an architectural decision wrong?
 
-<rule id="R-003">
-  <trigger>MEETING-LOG.md shows a council with status = "open"</trigger>
-  <dispatch>See active council</dispatch>
-  <action>Continue the council round sequence. Do not run sprint rules until council concludes.</action>
-  <next>Council round rules (R-100 series)</next>
+    Make a tactical decision:
+    A) Rewrite the sprint plan (bad scoping or task ordering).
+    B) Create a hotfix sprint (missing prerequisite or dependency).
+    C) Defer blocked tasks to next sprint (not on critical path).
+    D) Continue with logged justification (blocks are resolved, pattern is understood).
+
+    If analysis reveals a DECISIONS.md change is needed, route to R-040.
+    Log full reasoning to ACTIVITY.md.
+  </action>
+  <next>Route to appropriate sprint rule based on decision (R-020, R-021, R-022, or R-040)</next>
 </rule>
 
 ### Kickoff Rules (run once per project)
+
+<!-- R-010 through R-013 are executed during Phase 1 (Setup) by the /trinity-protocol
+     skill. They are NOT part of the autonomous execution loop. The autonomous loop
+     begins at R-011 (Approve Foundation) or R-020 (first sprint) depending on state. -->
 
 <rule id="R-010">
   <trigger>DECISIONS.md contains only template content (no populated sections)</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
-    Run Project Foundation. Conversational session with human to populate DECISIONS.md
-    and create docs/plans/*.md with real content. Commit foundation files.
+    Run Project Foundation. This is handled by the /trinity-protocol skill during
+    Setup — a conversational session with the human to populate DECISIONS.md and
+    create docs/plans/*.md with real content. Commit foundation files.
+    If encountered during autonomous execution, escalate to human (R-000) —
+    the skill must be run first.
   </action>
   <completion>
     INDEX.md: no changes (no sprints yet)
@@ -304,7 +305,7 @@ which rule fires next. Rules are evaluated top-to-bottom. First match wins.
 ### Sprint Loop Rules
 
 <rule id="R-020">
-  <trigger>No sprint in INDEX.md with status in [in-review, approved, in-progress, builder-blocked, complete, diff-blocked, council-pending] — i.e., all prior sprints are merged or no sprints exist</trigger>
+  <trigger>No sprint in INDEX.md with status in [in-review, approved, in-progress, builder-blocked, complete, diff-blocked] — i.e., all prior sprints are merged or no sprints exist</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Create next sprint. Read DECISIONS.md, BLOCKERS.md, INDEX.md, all prior retros,
@@ -426,90 +427,61 @@ which rule fires next. Rules are evaluated top-to-bottom. First match wins.
 
 <rule id="R-028">
   <trigger>Retro flagged architectural observation for DECISIONS.md</trigger>
+  <dispatch>ORCHESTRATOR</dispatch>
+  <action>
+    Draft proposed DECISIONS.md change based on retro observation.
+    Route to Decision Protocol for Architect review before applying.
+  </action>
+  <completion>
+    ACTIVITY.md: append "Proposed DECISIONS.md change: [summary]"
+  </completion>
+  <next>R-040 (Decision Protocol)</next>
+</rule>
+
+### Decision Protocol Rules
+
+<rule id="R-040">
+  <trigger>Orchestrator proposes a change to DECISIONS.md (from R-024 retro flag,
+    R-002 deep analysis, or any other source)</trigger>
+  <dispatch>ORCHESTRATOR</dispatch>
+  <action>
+    Draft the proposed DECISIONS.md change. Write the full entry (Decision, Why,
+    Do not) to ACTIVITY.md as a proposal. Do not modify DECISIONS.md yet.
+  </action>
+  <completion>
+    ACTIVITY.md: append "Proposed DECISIONS.md change: [summary of change and reasoning]"
+  </completion>
+  <next>R-041</next>
+</rule>
+
+<rule id="R-041">
+  <trigger>ACTIVITY.md contains an unreviewed DECISIONS.md proposal</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
-    Add new entry to DECISIONS.md under correct section.
+    Review the proposed DECISIONS.md change against existing decisions, security
+    invariants, and project constraints. Check for contradictions with existing
+    entries. Approve or reject with reasoning.
+  </action>
+  <completion>
+    ACTIVITY.md: append approval or rejection with reasoning
+  </completion>
+  <next>If approved → R-042. If rejected → Orchestrator revises (back to R-040)
+    or escalates disagreement to human (R-000).</next>
+</rule>
+
+<rule id="R-042">
+  <trigger>Architect approved a DECISIONS.md proposal in ACTIVITY.md</trigger>
+  <dispatch>ARCHITECT</dispatch>
+  <action>
+    Apply the approved change to DECISIONS.md under the correct section.
     Must include: Decision, Why, Do not (hard constraint).
     Commit with docs convention.
   </action>
   <completion>
-    ACTIVITY.md: append DECISIONS.md update entry
+    DECISIONS.md: updated with new entry
+    ACTIVITY.md: append "DECISIONS.md updated: [summary]" with commit hash
   </completion>
-  <next>R-020 (next sprint)</next>
-</rule>
-
-### Council Rules
-
-<rule id="R-100">
-  <trigger>Orchestrator decides council is warranted (from R-002 or human request)</trigger>
-  <dispatch>ORCHESTRATOR</dispatch>
-  <action>
-    Initialize council. Create docs/council/COUNCIL-N.md from template.
-    Write the Topic Brief section. Add row to MEETING-LOG.md with status "open".
-    Set related sprint status to "council-pending" in INDEX.md.
-  </action>
-  <completion>
-    MEETING-LOG.md: new row
-    ACTIVITY.md: append council initialization entry
-  </completion>
-  <next>R-101</next>
-</rule>
-
-<rule id="R-101">
-  <trigger>COUNCIL-N.md exists with empty Round 0 sections</trigger>
-  <dispatch>ALL ROLES (sequentially: Orchestrator, Architect, Builder)</dispatch>
-  <action>
-    Each role reads the Topic Brief and relevant project files.
-    Each writes their perspective in their Round 0 section.
-  </action>
-  <completion>
-    ACTIVITY.md: each role appends a pre-meeting notes entry
-  </completion>
-  <next>R-102</next>
-</rule>
-
-<rule id="R-102">
-  <trigger>COUNCIL-N.md Round 0 complete (all three roles have written)</trigger>
-  <dispatch>ALL ROLES (sequentially: Orchestrator, Architect, Builder)</dispatch>
-  <action>
-    Each role reads all Round 0 notes. Responds to specific points from other roles
-    in Round 1 section. Can agree, object, or propose alternatives.
-  </action>
-  <completion>
-    ACTIVITY.md: each role appends a round 1 entry
-  </completion>
-  <next>R-103</next>
-</rule>
-
-<rule id="R-103">
-  <trigger>COUNCIL-N.md Round 1 complete</trigger>
-  <dispatch>ALL ROLES (sequentially: Orchestrator, Architect, Builder)</dispatch>
-  <action>
-    Final positions. Each role reads Round 1 responses. States: Agree, Object, or Amend
-    with reasoning. This is the last input before conclusions.
-  </action>
-  <completion>
-    ACTIVITY.md: each role appends a final position entry
-  </completion>
-  <next>R-104</next>
-</rule>
-
-<rule id="R-104">
-  <trigger>COUNCIL-N.md Round 2 complete</trigger>
-  <dispatch>ORCHESTRATOR</dispatch>
-  <action>
-    Write Conclusions section. For each decision: tag severity [INFO|ACTION|MAJOR].
-    [MAJOR] decisions require human approval — write to ESCALATIONS.md.
-    [ACTION] decisions route to the appropriate protocol rule.
-    [INFO] decisions are logged only.
-    Close meeting in MEETING-LOG.md.
-  </action>
-  <completion>
-    MEETING-LOG.md: status → "concluded" or "human-review" if [MAJOR] exists
-    ACTIVITY.md: append council conclusion entry
-    INDEX.md: related sprint status → restore previous status or "human-review"
-  </completion>
-  <next>If [MAJOR] → R-000 (human review). If [ACTION] → route to relevant rule. If all [INFO] → R-020.</next>
+  <next>Return to calling rule (R-024 retro flow → R-020, or sprint loop)</next>
 </rule>
 
 ### Mid-Sprint Rules
@@ -597,14 +569,18 @@ R-023: Architect — Review Diff           → merged / diff-blocked
 R-024: Orchestrator — Retrospective      → retro committed
   └─ architectural flag (R-028)          → Architect: Update DECISIONS.md
 
-[COUNCIL — triggered by R-002 or human]
-R-100: Orchestrator — Initialize         → topic brief + meeting log
-R-101: All — Pre-meeting Notes           → Round 0
-R-102: All — Responses                   → Round 1
-R-103: All — Final Positions             → Round 2
-R-104: Orchestrator — Conclusions        → decisions tagged + routed
+[DEEP ANALYSIS — triggered by R-002 at 3+ blocks]
+R-002: Orchestrator — Deep Analysis      → read all blockers, analyze pattern
+                                         → rewrite sprint / hotfix / defer / continue
+                                         → if architectural issue → R-040
 
-[ESCALATION — triggered by R-001 or [MAJOR] council decision]
+[DECISION PROTOCOL — triggered by R-028 retro flag or R-002 analysis]
+R-040: Orchestrator — Propose change     → draft DECISIONS.md entry to ACTIVITY.md
+R-041: Architect — Review proposal       → approved / rejected
+R-042: Architect — Apply change          → DECISIONS.md updated, committed
+  └─ rejected                            → Orchestrator revises (R-040) or escalates (R-000)
+
+[ESCALATION — triggered by R-001 or Orchestrator-Architect disagreement]
 R-000: PAUSE                             → human decides in ESCALATIONS.md
                                          → Orchestrator resumes
 

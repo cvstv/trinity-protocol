@@ -56,8 +56,55 @@ or documentation sections.
 collapse review into either planning or execution, losing the security gate. Four or
 more roles create coordination overhead that exceeds the benefit for most projects.
 
+In the autonomous model, the head agent assumes the Orchestrator role and spawns
+two sub-agents (Architect and Builder). The three-role separation remains because
+it preserves the review chain: the entity that plans does not review its own plans,
+and the entity that writes code does not approve its own diffs.
+
 **Do not:** Add a fourth role. If a project needs specialized expertise, assign it
 as a focus area within an existing role, don't create a new role.
+
+### Head agent is Orchestrator
+
+**Decision:** The head agent always assumes the Orchestrator role. It dispatches
+Architect and Builder as sub-agents. This is the only supported configuration.
+
+**Why:** The Orchestrator reads state and dispatches work — that's exactly what
+a head agent does. Making the head agent the Architect or Builder would invert
+the authority model (a reviewer dispatching its own reviewer, or an executor
+dispatching its own planner). The Orchestrator also owns the escalation path
+to human — as the head agent, it can communicate directly with the user.
+
+**Do not:** Support configurations where the head agent is Architect or Builder.
+Do not support manual routing or hybrid modes — the framework is autonomous-only.
+
+### Architectural changes require Architect review
+
+**Decision:** Any change to DECISIONS.md must go through the Decision Protocol:
+Orchestrator proposes, Architect reviews, Architect applies if approved. Disagreements
+escalate to human.
+
+**Why:** DECISIONS.md is architectural law. The Orchestrator could modify it unilaterally
+in autonomous mode, but that removes the review gate that catches scope creep and
+constraint erosion. The Architect's independence on DECISIONS.md changes preserves
+the same integrity that the merge gate (R-023) provides for code.
+
+**Do not:** Allow the Orchestrator to modify DECISIONS.md directly. Do not allow
+the Builder to propose DECISIONS.md changes (route through Orchestrator).
+
+### UI design research during setup
+
+**Decision:** If a project includes a frontend or visual interface, the `/trinity-protocol`
+skill researches real UI examples and presents options to the human during setup.
+The human's choice is documented in DECISIONS.md as a design reference.
+
+**Why:** AI agents are notoriously bad at designing attractive UIs from scratch.
+They default to generic layouts and bland aesthetics. By researching existing designs
+that match the project's domain and having the human pick a visual direction during
+setup, the Builder has a concrete reference to work from during autonomous execution.
+
+**Do not:** Skip this phase for projects with a UI. Do not let the Builder invent
+UI designs without a documented design reference in DECISIONS.md.
 
 ### Roles are model-agnostic
 
@@ -96,31 +143,22 @@ trust it for context recovery.
 **Do not:** Add "edit" or "delete" operations to ACTIVITY.md. If an entry is wrong,
 append a correction entry — never modify the original.
 
-### Council at 3 blocks, escalation at 5
+### Deep Analysis at 3 blocks, escalation at 5
 
-**Decision:** If a single sprint accumulates 3+ blocks, the Orchestrator evaluates
-a council session. At 5+ blocks, mandatory human escalation.
+**Decision:** If a single sprint accumulates 3+ blocks, the Orchestrator performs
+a Deep Analysis — pauses the sprint loop, reads all blockers, analyzes root cause
+patterns, and makes a tactical decision (rewrite sprint, hotfix, defer, or continue
+with logged justification). At 5+ blocks, mandatory human escalation.
 
-**Why:** 3 blocks on one sprint is a signal that the problem is architectural, not
-implementational. Continuing the sprint loop wastes tokens. 5 blocks means the
-autonomous system has failed to resolve it and human judgment is needed. These
-thresholds were derived from real project experience (intel_cli Sprint 5 hit 5+
+**Why:** 3 blocks on one sprint signals an architectural problem, not an implementation
+one. The Orchestrator pauses to think rather than continuing a broken loop. 5 blocks
+means the autonomous system has failed to resolve it and human judgment is needed.
+These thresholds were derived from real project experience (intel_cli Sprint 5 hit 5+
 blocks on a chmod invariant issue that needed human-level architectural review).
 
 **Do not:** Change these thresholds without documenting why. Do not remove the
-mandatory escalation at 5 — that's the safety valve.
-
-### Two-round council with conclusions
-
-**Decision:** Council sessions have exactly: Round 0 (pre-meeting notes), Round 1
-(responses), Round 2 (final positions), then Orchestrator conclusions.
-
-**Why:** Two response rounds are sufficient for most deliberations. One round doesn't
-allow counter-arguments. Three or more rounds produce diminishing returns and waste
-tokens. The Orchestrator conclusions provide a clear decision point.
-
-**Do not:** Add more rounds to the default council template. If a council needs
-extended deliberation, the Orchestrator can call a second council on the same topic.
+mandatory escalation at 5 — that's the safety valve. Do not skip reading all
+blockers during Deep Analysis — the pattern requires the full picture.
 
 ---
 
@@ -140,6 +178,25 @@ because: markdown is readable in any editor, renders on GitHub, and doesn't requ
 a parser. The XML hybrid approach provides machine-readability where needed without
 losing human readability everywhere else.
 
+### Multi-round council deliberation
+
+Originally the framework used 3-round council sessions (pre-meeting notes, responses,
+final positions, conclusions) when sprints hit 3+ blocks. Rejected for autonomous mode
+because: when the head agent IS the Orchestrator and can spawn sub-agents directly,
+multi-round async deliberation is unnecessary overhead. The Orchestrator can reason
+through blockers directly via Deep Analysis, and architectural changes go through the
+Decision Protocol (Orchestrator proposes, Architect reviews) which achieves the same
+review integrity with far less token cost. Council sessions were designed for manual
+mode where agents couldn't communicate — that mode is no longer supported.
+
+### Manual routing and hybrid modes
+
+Originally the framework supported three modes: fully autonomous, manual routing
+(human copy-pastes between separate agent sessions), and hybrid (human fills some
+roles). Rejected because: supporting multiple modes created inconsistencies throughout
+the framework. Manual routing is slow and error-prone. The framework now commits to
+fully autonomous mode only — head agent as Orchestrator with two sub-agents.
+
 ### Single monolithic protocol file
 
 Considered putting everything in one large AGENT-GUIDE.md. Rejected because:
@@ -153,12 +210,12 @@ bootstrap). Combining them would force agents to parse irrelevant content on eve
 
 | Trade-off | Accepted because |
 |-----------|-----------------|
-| Human must copy AGENT-GUIDE.md into each project | Keeps projects self-contained and forkable. The skill automates this. |
 | No enforcement mechanism for rules | Agents are trusted to follow the protocol. Violations are caught at review gates (Architect). |
-| Council adds token cost | Only triggered at 3+ blocks — the alternative (continuing a broken sprint loop) costs more. |
+| Deep Analysis pauses sprint loop | Only triggered at 3+ blocks — the pause is intentional. Continuing a broken sprint loop costs more than stopping to analyze. |
 | ACTIVITY.md grows unbounded | Append-only is non-negotiable. The bootstrap uses tiered reading (first 10 + last 30) to manage long logs. |
 | No automated testing of protocol compliance | The protocol is markdown — there's nothing to unit test. Compliance is verified by the Architect role at review gates. |
+| UI design research adds setup time | Only for projects with a UI. The alternative — agents guessing at design — produces worse results and wastes autonomous execution tokens on UI rework. |
 
 ---
 
-*Last updated: 2026-02-24.*
+*Last updated: 2026-02-25.*

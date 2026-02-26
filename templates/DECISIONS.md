@@ -25,15 +25,21 @@ incomplete logged action is recoverable. A confident wrong action is not.
 
 ---
 
-## Council Trigger Rules
+## Decision Protocol
 
-<protocol id="CT-1">
+<protocol id="DP-1">
 If a single sprint accumulates 3 or more entries in the Blocks column of INDEX.md,
-the Orchestrator MUST evaluate whether a Council session is warranted before the
-sprint is attempted again.
+the Orchestrator MUST perform a Deep Analysis before the sprint is attempted again:
+read all blockers, the sprint file, the last retro, and this file. Analyze root cause
+pattern. Make a tactical decision (rewrite sprint, hotfix, defer tasks, or continue).
+Log full reasoning to ACTIVITY.md.
 
 If a single sprint accumulates 5 or more blocks, the Orchestrator MUST escalate
 to human-review via ESCALATIONS.md before any further action on that sprint.
+
+Changes to this file (DECISIONS.md) require the Decision Protocol:
+Orchestrator proposes → Architect reviews → if approved, Architect applies.
+If Orchestrator and Architect disagree, escalate to human via ESCALATIONS.md.
 </protocol>
 
 ---

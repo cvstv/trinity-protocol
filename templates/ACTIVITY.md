@@ -16,7 +16,7 @@ Do not edit or delete previous entries. Do not reformat existing lines.
 ## Roles
 
 ```xml
-<role>ORCHESTRATOR</role>   <!-- Head coordinator, sprint planner, council chair -->
+<role>ORCHESTRATOR</role>   <!-- Head agent, sprint planner, decision protocol authority -->
 <role>ARCHITECT</role>      <!-- Logic refiner, security gate, merge gate -->
 <role>BUILDER</role>        <!-- TDD executor, implementation, commits -->
 <role>HUMAN</role>          <!-- Human-in-the-loop decisions via ESCALATIONS.md -->

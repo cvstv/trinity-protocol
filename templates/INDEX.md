@@ -19,12 +19,13 @@ Use the next available sprint number. Update Status + Role + Date + Blocks after
 | `diff-blocked` | Architect | Diff review found violations | Builder: Targeted Fix |
 | `merged` | Architect | Diff reviewed and approved | Orchestrator: Sprint Retrospective |
 | `human-review` | Any role | Escalated to human, loop paused | Human responds in ESCALATIONS.md |
-| `council-pending` | Orchestrator | Council triggered, sprint paused | Council sequence runs |
 
 ## Block Counter Rules
 
 The `Blocks` column increments by 1 every time a sprint enters any blocked state:
 `blocked`, `builder-blocked`, `diff-blocked`.
 
-- Blocks >= 3 on a single sprint: Orchestrator MUST evaluate whether to trigger a Council session.
+- Blocks >= 3 on a single sprint: Orchestrator MUST perform Deep Analysis — pause the
+  sprint loop, read all blockers, analyze root cause pattern, make tactical decision
+  (rewrite sprint, hotfix, defer, or continue with logged justification).
 - Blocks >= 5 on a single sprint: Orchestrator MUST escalate to human-review before proceeding.
