@@ -259,7 +259,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
   </action>
   <completion>
     INDEX.md: no changes (no sprints yet)
-    ACTIVITY.md: append "[date] <role>ARCHITECT</role> — <action>Project Foundation</action> — DECISIONS.md + N plan files committed"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Project Foundation</action> — DECISIONS.md + N plan files committed"
   </completion>
   <next>R-011</next>
 </rule>
@@ -272,7 +272,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     Check: decisions sound? constraints complete? scope realistic? dependencies sequenced?
   </action>
   <completion>
-    ACTIVITY.md: append approval or changes-needed entry
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Approve Foundation</action> — [approval or changes-needed]"
   </completion>
   <next>If approved → R-012. If changes needed → R-010 (Architect revises).</next>
 </rule>
@@ -285,7 +285,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     No feature code. Verify current package versions.
   </action>
   <completion>
-    ACTIVITY.md: append scaffolding entry with commit hash
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Project Scaffolding</action> — [commit hash]"
   </completion>
   <next>R-013</next>
 </rule>
@@ -298,7 +298,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     known-vulnerable, CI config safe, directory structure matches plans.
   </action>
   <completion>
-    ACTIVITY.md: append scaffold review result
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Review Scaffold</action> — [review result]"
   </completion>
   <next>If approved → R-020 (sprint loop begins). If blocked → R-012 (Orchestrator fixes).</next>
 </rule>
@@ -306,68 +306,72 @@ next. Rules are evaluated top-to-bottom. First match wins.
 ### Sprint Loop Rules
 
 <rule id="R-020">
-  <trigger>No sprint in INDEX.md with status in [in-review, approved, in-progress, builder-blocked, complete, diff-blocked] — i.e., all prior sprints are merged or no sprints exist</trigger>
+  <trigger>No sprint in INDEX.md with sprint_status in [in-review, approved, in-progress, builder-blocked, complete, diff-blocked] — i.e., all prior sprints are merged or no sprints exist</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Create next sprint. Read DECISIONS.md, BLOCKERS.md, INDEX.md, all prior retros,
     and the relevant milestone plan file.
-    Write docs/sprints/SPRINT-N.md. Add row to INDEX.md with status "in-review".
+    Write docs/sprints/SPRINT-N.md. 
     Rules: under 8 tasks, strict sequential order, exact file paths, acceptance checks,
     stop conditions. Do not reference modules that don't exist yet.
   </action>
   <completion>
-    INDEX.md: new row, status = in-review, Blocks = 0
-    ACTIVITY.md: append sprint creation entry
+    RUN: python ./.trinity/bin/trinity-transition.py "in-review"
+    RUN: python ./.trinity/bin/trinity-block.py reset
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Create Sprint N</action> — created SPRINT-N.md"
   </completion>
   <next>R-021</next>
 </rule>
 
 <rule id="R-021">
-  <trigger>INDEX.md shows sprint N with status = "in-review"</trigger>
+  <trigger>INDEX.md shows sprint_status: in-review</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
     Review SPRINT-N.md against DECISIONS.md. Check: task order, security invariants,
     scope creep, BLOCKERS.md conflicts. Verify no prior sprint is still active.
   </action>
   <completion>
-    INDEX.md: status → "approved" or "blocked", increment Blocks if blocked
-    ACTIVITY.md: append review result
+    If blocked: RUN: python ./.trinity/bin/trinity-block.py increment
+    RUN: python ./.trinity/bin/trinity-transition.py "[approved or blocked]"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Review Sprint N</action> — [review result]"
   </completion>
   <next>If approved → R-022. If blocked → R-025.</next>
 </rule>
 
 <rule id="R-022">
-  <trigger>INDEX.md shows sprint N with status = "approved"</trigger>
+  <trigger>INDEX.md shows sprint_status: approved</trigger>
   <dispatch>BUILDER</dispatch>
   <action>
+    RUN: python ./.trinity/bin/trinity-transition.py "in-progress" immediately.
     Execute each task in order using TDD. Commit per task with convention.
     Stop conditions: if tests fail after 2 attempts, STOP. Write BLOCKERS.md entry.
   </action>
   <completion>
-    INDEX.md: status → "in-progress" (at start), then "complete" or "builder-blocked"
-    If blocked: increment Blocks column, write BLOCKERS.md entry
+    If blocked: RUN: python ./.trinity/bin/trinity-block.py increment
+    RUN: python ./.trinity/bin/trinity-transition.py "[complete or builder-blocked]"
     SPRINT-N.md: append Execution Summary (task, commit hash, deviations)
-    ACTIVITY.md: append start entry, then completion or blocked entry
+    RUN: python ./.trinity/bin/trinity-log.py "<role>BUILDER</role> — <action>Execute Sprint N</action> — [completion or blocked entry]"
   </completion>
   <next>If complete → R-023. If blocked → R-026.</next>
 </rule>
 
 <rule id="R-023">
-  <trigger>INDEX.md shows sprint N with status = "complete"</trigger>
+  <trigger>INDEX.md shows sprint_status: complete</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
     Review full diff. Check security invariants, architecture compliance,
     implementation matches sprint intent. No out-of-scope changes.
   </action>
   <completion>
-    INDEX.md: status → "merged" or "diff-blocked", increment Blocks if blocked
-    ACTIVITY.md: append review result
+    If blocked: RUN: python ./.trinity/bin/trinity-block.py increment
+    RUN: python ./.trinity/bin/trinity-transition.py "[merged or diff-blocked]"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Review Diff N</action> — [review result]"
   </completion>
   <next>If merged → R-024. If diff-blocked with minor fix → R-027. If diff-blocked with major issue → R-025.</next>
 </rule>
 
 <rule id="R-024">
-  <trigger>INDEX.md shows sprint N with status = "merged"</trigger>
+  <trigger>INDEX.md shows sprint_status: merged</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Sprint retrospective. Compare planned vs actual. Identify deferred items,
@@ -375,7 +379,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     If architectural observations: flag for Architect to update DECISIONS.md.
   </action>
   <completion>
-    ACTIVITY.md: append retro entry
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Sprint Retrospective N</action> — [retro entry short summary]"
   </completion>
   <next>If architectural flags → R-028. Then → R-020 (next sprint).</next>
 </rule>
@@ -383,21 +387,21 @@ next. Rules are evaluated top-to-bottom. First match wins.
 ### Recovery Rules
 
 <rule id="R-025">
-  <trigger>INDEX.md shows sprint N with status = "blocked"</trigger>
+  <trigger>INDEX.md shows sprint_status: blocked</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Read Architect's fix list from ACTIVITY.md or SPRINT-N.md review comments.
     Address only the specific fixes listed — do not re-scope, reorder, or add tasks.
   </action>
   <completion>
-    INDEX.md: status → "in-review"
-    ACTIVITY.md: append fix entry
+    RUN: python ./.trinity/bin/trinity-transition.py "in-review"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Fix Blocked Sprint N</action> — [fix entry]"
   </completion>
   <next>R-021 (Architect re-reviews)</next>
 </rule>
 
 <rule id="R-026">
-  <trigger>INDEX.md shows sprint N with status = "builder-blocked"</trigger>
+  <trigger>INDEX.md shows sprint_status: builder-blocked</trigger>
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Read BLOCKERS.md. Decide:
@@ -406,22 +410,23 @@ next. Rules are evaluated top-to-bottom. First match wins.
     Remove resolved BLOCKERS.md entry.
   </action>
   <completion>
-    INDEX.md: update status, add hotfix row if option A
+    RUN: python ./.trinity/bin/trinity-transition.py "[in-review or approved]"
     BLOCKERS.md: update resolved entry
-    ACTIVITY.md: append resolution entry
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Resolve Blocker N</action> — [resolution entry]"
   </completion>
   <next>If hotfix → R-021 (review hotfix). If deferred → R-022 (resume sprint).</next>
 </rule>
 
 <rule id="R-027">
-  <trigger>INDEX.md shows sprint N with status = "diff-blocked" AND Architect flagged minor fix</trigger>
+  <trigger>INDEX.md shows sprint_status: diff-blocked AND Architect flagged minor fix</trigger>
   <dispatch>BUILDER</dispatch>
   <action>
     Targeted fix. Architect specified exact file, line, and change required.
     Make only that change. Run only the affected test. Commit with fix convention.
   </action>
   <completion>
-    ACTIVITY.md: append targeted fix entry
+    RUN: python ./.trinity/bin/trinity-transition.py "complete"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>BUILDER</role> — <action>Targeted Fix N</action> — [targeted fix entry]"
   </completion>
   <next>R-023 (Architect re-reviews diff)</next>
 </rule>
@@ -434,7 +439,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     Route to Decision Protocol for Architect review before applying.
   </action>
   <completion>
-    ACTIVITY.md: append "Proposed DECISIONS.md change: [summary]"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Propose Decision Update</action> — [summary of proposed change]"
   </completion>
   <next>R-040 (Decision Protocol)</next>
 </rule>
@@ -447,16 +452,16 @@ next. Rules are evaluated top-to-bottom. First match wins.
   <dispatch>ORCHESTRATOR</dispatch>
   <action>
     Draft the proposed DECISIONS.md change. Write the full entry (Decision, Why,
-    Do not) to ACTIVITY.md as a proposal. Do not modify DECISIONS.md yet.
+    Do not) using the `trinity-log.py` script. Do not modify DECISIONS.md yet.
   </action>
   <completion>
-    ACTIVITY.md: append "Proposed DECISIONS.md change: [summary of change and reasoning]"
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Propose Decision Update</action> — [summary of change and reasoning]"
   </completion>
   <next>R-041</next>
 </rule>
 
 <rule id="R-041">
-  <trigger>ACTIVITY.md contains an unreviewed DECISIONS.md proposal</trigger>
+  <trigger>Unreviewed DECISIONS.md proposal exists in ACTIVITY.md log</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
     Review the proposed DECISIONS.md change against existing decisions, security
@@ -464,14 +469,14 @@ next. Rules are evaluated top-to-bottom. First match wins.
     entries. Approve or reject with reasoning.
   </action>
   <completion>
-    ACTIVITY.md: append approval or rejection with reasoning
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Review Decision Proposal</action> — [approval or rejection with reasoning]"
   </completion>
   <next>If approved → R-042. If rejected → Orchestrator revises (back to R-040)
     or escalates disagreement to human (R-000).</next>
 </rule>
 
 <rule id="R-042">
-  <trigger>Architect approved a DECISIONS.md proposal in ACTIVITY.md</trigger>
+  <trigger>Architect approved a DECISIONS.md proposal</trigger>
   <dispatch>ARCHITECT</dispatch>
   <action>
     Apply the approved change to DECISIONS.md under the correct section.
@@ -480,7 +485,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
   </action>
   <completion>
     DECISIONS.md: updated with new entry
-    ACTIVITY.md: append "DECISIONS.md updated: [summary]" with commit hash
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ARCHITECT</role> — <action>Apply Decision Update</action> — [summary + commit hash]"
   </completion>
   <next>Return to calling rule (R-024 retro flow → R-020, or sprint loop)</next>
 </rule>
@@ -497,7 +502,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
     C) Hotfix first — create SPRINT-N-hotfix.md.
   </action>
   <completion>
-    ACTIVITY.md: append mid-sprint check entry with decision
+    RUN: python ./.trinity/bin/trinity-log.py "<role>ORCHESTRATOR</role> — <action>Mid-Sprint Check</action> — [decision]"
   </completion>
   <next>Resume sprint execution</next>
 </rule>
@@ -509,7 +514,7 @@ next. Rules are evaluated top-to-bottom. First match wins.
 These rules are not triggered by state — they are constraints that apply to every action.
 
 <invariant id="I-001">
-  Every action by any role MUST append exactly one line to ACTIVITY.md.
+  Every action by any role MUST append exactly one line to ACTIVITY.md using the `trinity-log.py` script.
   No silent actions. If ACTIVITY.md is stale, the system makes wrong decisions.
 </invariant>
 
@@ -519,8 +524,8 @@ These rules are not triggered by state — they are constraints that apply to ev
 </invariant>
 
 <invariant id="I-003">
-  INDEX.md status + Blocks column must be updated after every state change.
-  INDEX.md is the system heartbeat.
+  The YAML frontmatter in INDEX.md (`sprint_status`, `blocks`, `active_role`) must be updated after every state change using the `trinity-block.py` and `trinity-transition.py` scripts.
+  INDEX.md YAML frontmatter is the system heartbeat.
 </invariant>
 
 <invariant id="I-004">

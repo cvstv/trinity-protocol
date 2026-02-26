@@ -1,31 +1,37 @@
+---
+sprint_status: none
+active_sprint: 0
+blocks: 0
+active_role: ORCHESTRATOR
+---
+
 # Sprint Index
 
-Read this before creating, modifying, or dispatching any sprint.
-Use the next available sprint number. Update Status + Role + Date + Blocks after every state change.
+**Read this before creating, modifying, or dispatching any sprint.**
+The state of the protocol is driven entirely by the YAML variables above. 
 
-| Sprint | File | Status | Role | Date | Milestone | Tasks | Blocks |
-|--------|------|--------|------|------|-----------|-------|--------|
+> Do not edit the YAML block manually unless you are an agent bypassing the CLI tools. 
+> Use `./.trinity/bin/trinity-transition` and `./.trinity/bin/trinity-block`.
 
 ## Status Values
 
-| Status | Set by | Meaning | Next action |
-|--------|--------|---------|-------------|
-| `in-review` | Orchestrator | Sprint written, awaiting Architect review | Architect: Review Sprint |
-| `approved` | Architect | Ready for Builder to execute | Builder: Execute Sprint |
-| `blocked` | Architect | Security or dependency violations | Orchestrator: Fix Blocked Sprint |
-| `in-progress` | Builder | Builder is actively executing | (wait for completion) |
-| `builder-blocked` | Builder | Hit a stop condition, blocker written | Orchestrator: Resolve Blocker |
-| `complete` | Builder | All tasks committed and passing | Architect: Review Diff |
-| `diff-blocked` | Architect | Diff review found violations | Builder: Targeted Fix |
-| `merged` | Architect | Diff reviewed and approved | Orchestrator: Sprint Retrospective |
-| `human-review` | Any role | Escalated to human, loop paused | Human responds in ESCALATIONS.md |
+| Status | Meaning |
+|--------|---------|
+| `in-review` | Sprint written, awaiting Architect review |
+| `approved` | Ready for Builder to execute |
+| `blocked` | Security or dependency violations |
+| `in-progress` | Builder is actively executing |
+| `builder-blocked` | Hit a stop condition, blocker written |
+| `complete` | All tasks committed and passing |
+| `diff-blocked` | Diff review found violations |
+| `merged` | Diff reviewed and approved |
+| `human-review` | Escalated to human, loop paused |
 
 ## Block Counter Rules
 
-The `Blocks` column increments by 1 every time a sprint enters any blocked state:
+The `blocks` variable increments by 1 every time a sprint enters any blocked state:
 `blocked`, `builder-blocked`, `diff-blocked`.
 
 - Blocks >= 3 on a single sprint: Orchestrator MUST perform Deep Analysis — pause the
-  sprint loop, read all blockers, analyze root cause pattern, make tactical decision
-  (rewrite sprint, hotfix, defer, or continue with logged justification).
+  sprint loop, read all blockers, analyze root cause pattern, make tactical decision.
 - Blocks >= 5 on a single sprint: Orchestrator MUST escalate to human-review before proceeding.

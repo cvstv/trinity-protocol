@@ -171,12 +171,11 @@ queues. Rejected because: most AI agent setups don't support real-time inter-age
 communication. The filesystem approach works with any agent that has repo access,
 regardless of platform.
 
-### YAML/JSON for state files
+### YAML/JSON for full state files
 
-Considered using structured data formats for INDEX.md and ACTIVITY.md. Rejected
-because: markdown is readable in any editor, renders on GitHub, and doesn't require
-a parser. The XML hybrid approach provides machine-readability where needed without
-losing human readability everywhere else.
+Considered using fully structured data formats (entire JSON/TOML files) for INDEX.md and ACTIVITY.md. Rejected because: the nuance of planning and coordination is lost.
+
+**V2 Exception:** However, in Trinity V2, we *do* use YAML Frontmatter exclusively for machine-critical structural state (e.g. `sprint_status:`, `blocks:`) inside the Markdown files. This allows the deterministic `.trinity/bin` Python scripts to parse and update the system heartbeat reliably without LLM hallucination, while preserving the prose-heavy Markdown body for human readability.
 
 ### Multi-round council deliberation
 

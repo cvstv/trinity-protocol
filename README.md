@@ -23,6 +23,18 @@ ARCHITECT      sub-agent. Reviews plans, reviews code, gates merges, owns DECISI
 BUILDER        sub-agent. Writes code via TDD, commits per task, stops when blocked.
 ```
 
+## V2 Architecture: The "Cortex" and "Actuator" Split
+
+Trinity Protocol V2 operates on a strict split between machine-state and human-nuance:
+
+1. **State variables live in YAML Frontmatter**. (e.g., Block counters, sprint statuses).
+2. **Context and nuance live in Markdown bodies**. (e.g., Code reviews, architectural invariants).
+3. **Execution is handled by deterministic Python scripts**. (e.g., `trinity-log.py`, `trinity-transition.py`).
+
+By offloading the mechanical work of formatting log files and updating state variables to local Python scripts (`.trinity/bin/`), the AI agents save massive amounts of tokens, preserve their context windows, and execute actions with deterministic speed.
+
+> **Requirements:** Because of the V2 Actuator scripts, the environment running the AI agents MUST have Python installed natively.
+
 All three are engineers. The separation exists for accountability: the entity that
 plans doesn't review its own plans, and the entity that writes code doesn't approve
 its own diffs.
@@ -82,10 +94,11 @@ First match wins. Priority rules (escalations, block thresholds) always check fi
 |------|---------|
 | `ACTIVITY.md` | Append-only event log. Every action by every role. |
 | `DECISIONS.md` | Architectural law. What was decided, why, and what's forbidden. |
-| `INDEX.md` | Sprint status table with block counter. The system heartbeat. |
+| `INDEX.md` | Sprint status directory. Contains the YAML State Machine heartbeat. |
 | `BLOCKERS.md` | Dead letter queue. Work that hit a stop condition. |
 | `ESCALATIONS.md` | Human valve. Pauses the loop for human decisions. |
 | `AGENT-GUIDE.md` | The dispatch table. The core of everything. |
+| `.trinity/bin/*.py`| Deterministic execution scripts. The actuator tools. |
 
 Every file serves double duty: it's project documentation AND runtime state for
 the agents. There's no separate coordination system. The repo IS the protocol.

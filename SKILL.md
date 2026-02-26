@@ -26,9 +26,10 @@ Every file you create is a node in a distributed coordination protocol:
 | `BLOCKERS.md` | Dead letter queue — unprocessable work routed here for resolution |
 | `ESCALATIONS.md` | Human valve — pauses the autonomous loop for human decisions |
 | `docs/AGENT-GUIDE.md` | Runtime protocol — the full rule engine that drives the system |
+| `.trinity/bin/*` | Tooling directory containing the deterministic shell scripts |
 
 This is Infrastructure as Code for AI orchestration. Markdown is the medium.
-Git is the transport. The repo is the nervous system.
+Git is the transport. The repo is the nervous system. The shell is the actuator.
 
 ## When to Use
 
@@ -137,6 +138,13 @@ Based on the technology decisions from Phase 2:
 - Set up any config files, CI skeleton, or tooling the project needs
 - Verify all tools and dependencies are available and working
 
+### Phase 8: Scaffold internal shell scripts
+
+Create the `.trinity/bin/` directory to house tool-scripts:
+- `mkdir -p .trinity/bin`
+- Write out the 3 python scripts from the Trinity templates (`trinity-log.py`, `trinity-block.py`, `trinity-transition.py`) into `.trinity/bin/`.
+- Ensure they have execution permissions: `chmod +x .trinity/bin/*.py`. 
+
 Commit the scaffold to `main` before creating the coordination files.
 This handles R-012/R-013 during setup so the autonomous loop can begin
 directly at sprint planning.
@@ -204,7 +212,11 @@ Copy from template. Empty — the Builder writes the first entry if it hits a st
 Copy from template. Empty — the Orchestrator writes the first entry when it needs
 human input.
 
-### 7. `docs/AGENT-GUIDE.md`
+### 7. `.trinity/bin/` — Execution Handlers
+Copy the template implementation for the `trinity-log.py`, `trinity-transition.py`, and `trinity-block.py` scripts.
+These will serve as the system actuators.
+
+### 8. `docs/AGENT-GUIDE.md`
 
 This is the runtime protocol — the full rule engine that drives the autonomous loop.
 Copy from the canonical AGENT-GUIDE.md in the Trinity Protocol repo, then customize:
@@ -217,7 +229,7 @@ Commit all files to `main` (this is the only direct commit to main — foundatio
 
 ```bash
 git add ACTIVITY.md DECISIONS.md BLOCKERS.md ESCALATIONS.md \
-       docs/plans/ docs/sprints/INDEX.md docs/AGENT-GUIDE.md
+       docs/plans/ docs/sprints/INDEX.md docs/AGENT-GUIDE.md .trinity/bin/
 git commit -m "docs: project foundation — Trinity Protocol initialized"
 ```
 
