@@ -27,7 +27,7 @@ full project state: what was decided, what happened, what's blocked, what's next
 🔨 BUILDER        sub-agent. Writes code via TDD, commits per task, stops when blocked.
 ```
 
-## ◩ V2 Architecture: The "Nucleus" and "Actuator" Split
+## ◩ V2 Architecture: The "Signal" and "Actuator" Split
 
 Trinity Protocol V2 operates on a strict split between machine-state and human-nuance:
 
