@@ -1,9 +1,9 @@
 ---
 name: trinity-protocol
-description: Use when starting a new project requiring autonomous AI coordination. Runs a conversational architecture session to produce a fully populated V2 autonomous agent coordination system where a head agent orchestrates sub-agents via repo files.
+description: Use when starting a new project requiring autonomous AI coordination, or returning to an existing Trinity Protocol project to plan improvements. Runs a conversational session to produce fully populated coordination files for a V2 autonomous agent system where a head agent orchestrates sub-agents via repo files.
 ---
 
-# Trinity Protocol: Project Initialization
+# Trinity Protocol: Project Initialization & Re-Entry
 
 ## What You Are Building
 
@@ -37,8 +37,25 @@ Git is the transport. The repo is the nervous system. The shell is the actuator.
 - The human has a project idea (rough or detailed, either works)
 - The user has a head agent capable of spawning and orchestrating sub-agents (e.g., Claude Code, advanced IDE agents).
 - The system will run fully autonomously with the head agent dispatching sub-agents.
+- **OR:** The project already has Trinity coordination files and the human wants to
+  iterate — add features, fix issues, or improve what exists.
 
 **NOT for:** single-agent projects, or manual copy-pasting between chat windows. This is a V2 Autonomous-only framework.
+
+## Path Detection
+
+Before starting any conversation, determine which path to take:
+
+1. **New project** — No coordination files exist. Run the full Foundation conversation
+   (Phases 1-8 below).
+2. **Existing project, inject protocol** — Code exists but no Trinity files. Run the
+   Foundation conversation adapted for existing code.
+3. **Re-entry** — Trinity coordination files already exist (DECISIONS.md, ACTIVITY.md,
+   INDEX.md, AGENT-GUIDE.md, `.trinity/bin/`). Skip the Foundation entirely and jump
+   to the **Re-Entry** section at the bottom of this document.
+
+Detection is conversational, not automated. Ask the human what they're here for if
+it's not obvious from context.
 
 ## The Three Roles
 
@@ -268,12 +285,208 @@ You read state → match rules → dispatch sub-agents. Follow the framework.
 All future work happens on sprint branches — main is protected after this commit.
 ```
 
+---
+
+## Re-Entry: Iterating on an Existing Project
+
+This section activates when the project already has Trinity coordination files.
+The human is coming back to improve, extend, or fix what the autonomous loop built.
+
+This is the same conversational approach as Foundation — ask questions, understand
+what the human wants, then produce real plans. But the starting point is a working
+project, not a blank repo.
+
+### R-Phase 1: Project health check
+
+Read the project state before asking anything:
+
+1. Read `ACTIVITY.md` — full history (or last 30 entries if very long)
+2. Read `docs/sprints/INDEX.md` — sprint completion status and YAML state
+3. Read `DECISIONS.md` — current architectural constraints
+4. Read `BLOCKERS.md` — any unresolved blockers
+5. Read `ESCALATIONS.md` — any unresolved escalations
+6. List the source code structure (`ls` or `find` on the source directories)
+
+Then present a brief summary based on what you find:
+
+- **All sprints done:** "Here's where the project stands — all N milestones complete,
+  X total tasks done. The app currently does [functional summary]."
+- **Mid-sprint:** "Looks like you're mid-sprint — Sprint N is active with X of Y tasks
+  done. What's going on — want to finish this sprint or change direction?"
+- **Open blockers:** "There are N unresolved blockers. Let's deal with those before
+  planning new work."
+- **Open escalations:** "There are open escalations waiting for your input. Let's
+  resolve those first."
+
+Adapt to whatever state you find. Don't assume all sprints are done.
+
+### R-Phase 2: What worked and what didn't
+
+Ask:
+- **"What's working well? What are you happy with?"**
+- **"What's broken, annoying, or missing?"** — these become the next milestones
+- **"Anything the agents got wrong that needs fixing?"** — bad patterns, wrong
+  architecture, things that should be refactored
+- **"Any new features you want to add?"**
+- **"Has anything changed about who this is for or how you use it?"** — scope
+  changes affect DECISIONS.md
+
+### R-Phase 3: Prioritize improvements
+
+Based on answers, categorize into:
+- **Bugs/fixes** — things that are broken (highest priority)
+- **Quality improvements** — refactoring, better error handling, performance
+- **New features** — additions to scope
+- **Polish** — UX, visual, documentation
+
+Propose a prioritized milestone plan:
+- **"Here's what I'd tackle in order:"** — with reasoning for the sequence
+- Each milestone: goal in one sentence, approximate task count, key deliverables
+- Ask: **"Does this priority order make sense? Anything you'd move up or down?"**
+
+### R-Phase 4: UI design research (if applicable)
+
+If the iteration involves UI changes, new screens, or visual overhaul:
+- Research updated design references as in Foundation Phase 6
+- Present options, get the human's choice, update DECISIONS.md Design Reference
+
+**Skip** if iteration is backend-only, bug fixes, or non-visual changes.
+
+### R-Phase 5: Archive and compress
+
+Before creating new plans, clean up the coordination files to keep them lean
+for the next cycle of agent work.
+
+#### Archive ACTIVITY.md
+
+1. Determine the cycle number (count existing `docs/archive/ACTIVITY-cycle-*.md` files + 1)
+2. Copy the current `ACTIVITY.md` to `docs/archive/ACTIVITY-cycle-N.md`
+3. Replace `ACTIVITY.md` with a fresh file containing:
+   - The standard header
+   - A **"Previous Cycles"** summary block — one line per previous cycle summarizing
+     what was accomplished (e.g., "Cycle 1 (M1-M4): Built core VT client with tabbed
+     UI, 17 tasks completed across 4 sprints")
+   - A separator
+   - A new re-entry log entry
+
+Example:
+```markdown
+# Activity Log
+
+All entries are append-only. Format: `[date] <role>ROLE</role> — <action>Action</action> — outcome`
+
+---
+
+## Previous Cycles
+
+- **Cycle 1 (M1-M4):** Built core Scout app — VT API client, CustomTkinter tabbed UI,
+  5 endpoint tabs, error handling and polish. 20 tasks across 4 sprints.
+
+---
+
+[2026-02-26] <role>ARCHITECT</role> — <action>Re-Entry: Cycle 2</action> — New milestones planned: [list of new milestones]
+```
+
+#### Archive resolved blockers
+
+1. If `BLOCKERS.md` has resolved entries, move them to `docs/archive/BLOCKERS-cycle-N.md`
+2. Keep only open blockers (if any) in the live file
+
+#### Create archive directory
+
+```bash
+mkdir -p docs/archive
+```
+
+### R-Phase 6: Update coordination files
+
+Based on the conversation:
+
+1. **Update DECISIONS.md:**
+   - Add new decisions with Decision/Why/Do not fields
+   - Update existing decisions if scope or technology changed
+   - Add new Rejected Approaches if alternatives were discussed
+   - Mark superseded decisions with `[SUPERSEDED by: new decision]` — do not delete them
+   - Update Design Reference if UI direction changed
+
+2. **Create new milestone plans** in `docs/plans/`:
+   - Same format as originals: `[YYYY-MM-DD]-[project]-[milestone-topic].md`
+   - Sequential tasks, TDD-shaped, file paths, acceptance criteria
+   - Tasks must not reference modules that don't exist yet (check the existing codebase)
+
+3. **Reset INDEX.md YAML frontmatter** for the new cycle:
+   ```yaml
+   ---
+   sprint_status: none
+   blocks: 0
+   active_role: ORCHESTRATOR
+   tests_passing: true
+   ---
+   ```
+   **Keep all existing sprint table rows.** They are history. New sprints append below.
+
+4. **Commit to main** (re-entry is the only other allowed direct main commit):
+   ```bash
+   git add ACTIVITY.md DECISIONS.md docs/plans/ docs/sprints/INDEX.md \
+          docs/archive/ BLOCKERS.md
+   git commit -m "docs: re-entry cycle N — [summary of new milestones]"
+   ```
+
+### R-Phase 7: Relaunch prompt
+
+Output the re-entry prompt for the head agent:
+
+```
+Iteration cycle ready.
+
+Give your head agent this prompt:
+
+---
+You are resuming the Trinity Protocol autonomous loop for this project.
+
+You are the Orchestrator. Spawn two sub-agents:
+- One assigned ARCHITECT
+- One assigned BUILDER
+
+Read docs/AGENT-GUIDE.md — this is the dispatch table that drives everything.
+Run the Session Bootstrap to load project state. New milestone plans have been
+added to docs/plans/. The INDEX.md has been reset for the next sprint cycle.
+
+Begin at R-012 (Create Sprint) — the foundation is already approved from the
+previous cycle. Pull tasks from the new milestone plans.
+
+**CRITICAL RULE:** Never manually edit the YAML frontmatter in `INDEX.md`. You MUST
+use the Python actuator scripts in `.trinity/bin/` for all state changes and logging.
+Failure to do so will corrupt the protocol state.
+
+You read state → match rules → dispatch sub-agents. Follow the framework.
+---
+
+All work happens on sprint branches — main is protected.
+```
+
+### Re-Entry Rules
+
+- **Do not re-scaffold.** The project structure, actuator scripts, and AGENT-GUIDE.md
+  already exist. Only update DECISIONS.md and add new plans.
+- **Do not delete old plans.** They are history. New plans get new date-stamped files.
+- **Do not delete ACTIVITY.md entries.** Archive them, summarize them, but the raw
+  originals are preserved in `docs/archive/`.
+- **Do not clear the sprint table.** Old sprint rows stay. New sprints append below.
+- **Preserve existing DECISIONS.md entries.** Add new ones, update changed ones,
+  mark superseded ones, but never delete previous decisions.
+- **The AGENT-GUIDE.md rules don't change.** The same state machine drives new sprints.
+  Only update AGENT-GUIDE.md if the process itself needs to change (rare).
+- **Archive before creating.** Always run R-Phase 5 before R-Phase 6 to keep files lean.
+
+---
+
 ## What NOT to Do
 
 - Do not create Sprint 1. That is the Orchestrator's job after approving the foundation.
 - Do not leave template placeholders. Every file must have real content.
 - Do not skip the "Do not:" line on any DECISIONS.md entry.
 - Do not write an AGENT-GUIDE.md with generic paths. Use the actual project name.
-- Do not commit directly to main after this foundation commit. All subsequent work
-  goes on sprint branches.
+- Do not commit directly to main after this foundation commit (exception: re-entry
+  cycle commits). All subsequent work goes on sprint branches.
 - Do not guess. If you're unsure, ask the human.
